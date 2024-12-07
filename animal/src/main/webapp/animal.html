@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta charset="UTF-8">
+
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+	<div class="titulo">
+	<h1>Animal</h1><br/>
+	
+<div class="input-group mb-3">
+	<button type="button" class="btn btn-primary" onclick="novo()">Novo</button>
+	
+  	<input type="text" class="form-control" placeholder="Pesquisa" aria-label="Pesquisa" aria-describedby="button-addon2" id="pesquisa">
+  	<button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="listar()">Pesquisa</button>
+</div>
+	
+	<div id="resposta"></div>
+	
+	<div class="modal fade" id="formulario" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  	<div class="modal-dialog">
+    	<div class="modal-content">
+      	<div class="modal-header">
+        	<h1 class="modal-title fs-5" id="exampleModalLabel">Cadastro de Animais</h1>
+        	<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      	</div>
+      	<div class="modal-body">
+      	
+      		<div class="input-group mb-3">
+  			<span class="input-group-text" id="inputGroup-sizing-default">nome:</span>
+  			<input id="marca" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+			</div>
+			
+			<div class="input-group mb-3">
+  			<span class="input-group-text" id="inputGroup-sizing-default">raca:</span>
+  			<input id="valor" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+			</div>
+			
+			<div class="input-group mb-3">
+  			<span class="input-group-text" id="inputGroup-sizing-default">nomedono:</span>
+  			<input id="cor" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+			</div>
+			
+			<div class="input-group mb-3">
+  			<span class="input-group-text" id="inputGroup-sizing-default">telefonedono:</span>
+  			<input id="placa" type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+			</div>
+      	
+      	</div>
+      	
+ 
+      	
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="salvar()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="excluir" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  	<div class="modal-dialog">
+    	<div class="modal-content">
+      	<div class="modal-header">
+        	<h1 class="modal-title fs-5" id="exampleModalLabel">Cadastro de Animais</h1>
+        	<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      	</div>
+      	<div class="modal-body">
+      		Confirma a exclusão do registro do Animal?
+      	</div>  	
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Não</button>
+        <button type="button" class="btn btn-primary" onclick="excluirsim()">Sim</button>
+      </div>
+    </div>
+  </div>
+</div>
+	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+		const modal = new bootstrap.Modal('#formulario');
+		const modalexcluir = new bootstrap.Modal('#excluir');
+		listar();
+		var idatual = 0;
+		
+		function listar(){
+			document.getElementById("resposta").innerHTML = "aguarde...carregando...";
+			
+			let pesquisa = document.getElementById("pesquisa").value;
+			
+		fetch("../animalAPI?pesquisa="+pesquisa)
+			.then(resp => resp.json())
+			.then(dados => mostrar(dados));
+		
+		function mostrar(dados){
+			var tab = "<table class='table table-hover'>"
+						+ "<th>idanimal</th>"
+						+ "<th>nome</th>"
+						+ "<th>raca</th>"
+						+ "<th>nomedono</th>"
+						+ "<th>telefonedono</th>"
+						+ "<th></th>";
+			for (i in dados){
+				tab += "<tr>" + "<td>" + dados[i].idanimal + "</td>"
+				+ "<td>" + dados[i].nome + "</td>"
+				+ "<td>" + dados[i].raca+ "</td>"
+				+ "<td>" + dados[i].nomedono + "</td>"
+				+ "<td>" + dados[i].telefonedono+ "</td>"
+				+ "<td>"
+				+ " <a href='#' onclick='alterar("+dados[i].idanimal+")'><img src='imagens/edit.svg'>"
+				+ " <a href='#' onclick='excluir("+dados[i].idanimal+")'><img src='imagens/trash-2.svg'>"
+				+ "</td>"
+				+ "</tr>";	
+			}
+		
+			tab += "</table>";
+			document.getElementById("resposta").innerHTML = tab;	
+		}
+	}
+		
+		function alterar(idanimal){
+			idatual = idanimal;
+			fetch("../animalAPI/*" + idanimal)	
+				.then(resp => resp.json())
+				.then(function (resposta){
+					document.getElementById("nome").value = resposta.nome;
+					document.getElementById("raca").value = resposta.raca;
+					document.getElementById("nomedono").value = resposta.nomedono;
+					document.getElementById("telefonedono").value = resposta.telefonedono;
+					modal.show();
+				});
+			
+					
+			
+		}
+		function excluir(idanimal){
+			idatual = idanimal;
+			modalexcluir.show();
+			
+		}
+		
+		function excluirsim(){
+			fetch("../animalAPI/*" + idatual,
+					{method: "DELETE"}		
+				)
+				.then(resp => resp.json())
+				.then(function (resposta){
+					alert(resposta.mensagem);
+					modalexcluir.hide();
+					listar();
+				});
+			
+		}
+		
+		function novo(){
+			idatual = -1;
+			//adicionar o código para limpar todos os inputs antes de abrir o modal
+			modal.show();
+			document.getElementById("nome").value = " ";
+			document.getElementById("raca").value = " ";
+			document.getElementById("nomedono").value = " ";
+			document.getElementById("telefonedono").value = " ";
+			
+		}
+		
+		function salvar(){
+			//pega os valores digitados pelo usuário
+			let animal = {};
+			animal.nome = document.getElementById("nome").value;
+			animal.valor = document.getElementById("raca").value;
+			animal.nomedono = document.getElementById("nomedono").value;
+			animal.telefonedono= document.getElementById("telefonedono").value;
+			
+			let body = JSON.stringify(animal);
+			
+			let endereco = "../animalAPI/*";
+			let metodo = "POST";
+			if (idatual > 0){
+				endereco = "../animalAPI/*" + idatual;
+				metodo = "PUT";
+			}
+			fetch(endereco,
+				{method: metodo, body: body}		
+			)
+			.then(resp => resp.json())
+			.then(function (resposta){
+				alert(resposta.mensagem);
+				modal.hide();
+				listar();
+			});
+		}
+		
+
+	</script>
+
+</body>
+</html>
